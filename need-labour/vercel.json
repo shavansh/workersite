@@ -1,6 +1,0 @@
-{
-    "buildCommand": "cd need-labour && npm run build",
-    "outputDirectory": "need-labour/.next",
-    "installCommand": "cd need-labour && npm install",
-    "framework": "nextjs"
-}
