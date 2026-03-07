@@ -143,8 +143,33 @@ export default function WorkerDashboard() {
                                             {profile?.availability ? 'Available for Work' : 'Not Available'}
                                         </span>
                                     </div>
-                                    <button className="btn btn-sm btn-ghost" onClick={toggleAvailability} style={{ fontSize: '0.75rem' }}>
-                                        Toggle
+                                    <button
+                                        onClick={toggleAvailability}
+                                        style={{
+                                            position: 'relative',
+                                            width: '3rem',
+                                            height: '1.625rem',
+                                            borderRadius: '999px',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            background: profile?.availability ? '#22c55e' : '#d1d5db',
+                                            transition: 'background 0.3s ease',
+                                            padding: 0,
+                                            flexShrink: 0,
+                                        }}
+                                        aria-label="Toggle availability"
+                                    >
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '2px',
+                                            left: profile?.availability ? 'calc(100% - 1.375rem - 2px)' : '2px',
+                                            width: '1.375rem',
+                                            height: '1.375rem',
+                                            borderRadius: '50%',
+                                            background: 'white',
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                                            transition: 'left 0.3s ease',
+                                        }} />
                                     </button>
                                 </div>
                             </div>

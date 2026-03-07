@@ -5,7 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, updateDoc, collection, getDocs, addDoc, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { JobRequest, WorkerProfile, UserData, Assignment, Transaction } from '@/lib/types';
-import { ArrowLeft, Phone, MapPin, Calendar, Users, IndianRupee, CheckCircle, Plus, X, Search, UserCheck, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Phone, MapPin, Calendar, Users, IndianRupee, CheckCircle, Plus, X, Search, UserCheck, AlertCircle, Printer, MessageCircle } from 'lucide-react';
+import Link from 'next/link';
+import { notifyWorkerAssigned, notifyJobStatusChange, notifyPaymentRecorded } from '@/lib/notifications';
 
 const STATUS_OPTIONS = ['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 const statusBadge: Record<string, string> = {
@@ -106,6 +108,10 @@ export default function AdminRequestDetail() {
         try {
             await updateDoc(doc(db, 'jobRequests', jobId), { status: newStatus });
             setJob(prev => prev ? { ...prev, status: newStatus as any } : prev);
+            // Notify customer
+            if (job && job.customerId && newStatus !== 'PENDING') {
+                await notifyJobStatusChange(job.customerId, job.labourType, newStatus, jobId);
+            }
             setSuccess(`Status updated to ${newStatus}`);
             setTimeout(() => setSuccess(''), 3000);
         } catch {
@@ -150,6 +156,9 @@ export default function AdminRequestDetail() {
             setAssignForm({ daysAssigned: '', baseWagePerDay: '', markupPerDay: '50' });
             setShowWorkerSearch(false);
 
+            // Notify the worker
+            await notifyWorkerAssigned(selectedWorker.uid, selectedWorker.name, job?.labourType || 'construction', job?.location || '', jobId);
+
             // Update total cost on job
             const newTotal = [...assignments, { totalCost: total }].reduce((sum, a) => sum + a.totalCost, 0);
             await updateDoc(doc(db, 'jobRequests', jobId), { totalCost: newTotal });
@@ -183,6 +192,10 @@ export default function AdminRequestDetail() {
             }]);
             setPaymentForm({ amount: '', method: 'Cash', notes: '', paymentType: 'CUSTOMER_PAYMENT' });
             setShowPayment(false);
+            // Notify customer
+            if (job && job.customerId) {
+                await notifyPaymentRecorded(job.customerId, parseFloat(paymentForm.amount), paymentForm.paymentType, jobId);
+            }
             setSuccess('Payment recorded!');
             setTimeout(() => setSuccess(''), 3000);
         } catch {
@@ -225,14 +238,19 @@ export default function AdminRequestDetail() {
                         <h1>{job.labourType} — {job.quantity} Workers</h1>
                         <p>Submitted by {job.customerName}</p>
                     </div>
-                    <span className={`badge ${statusBadge[job.status]}`} style={{ fontSize: '0.8125rem', padding: '0.375rem 0.875rem' }}>
-                        {job.status.replace('_', ' ')}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Link href={`/admin/requests/${jobId}/receipt`} target="_blank" className="btn btn-outline btn-sm" style={{ textDecoration: 'none' }}>
+                            <Printer size={14} /> Receipt
+                        </Link>
+                        <span className={`badge ${statusBadge[job.status]}`} style={{ fontSize: '0.8125rem', padding: '0.375rem 0.875rem' }}>
+                            {job.status.replace('_', ' ')}
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <div className="page-content">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
                     {/* Left Column */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                         {/* Job Details Card */}
@@ -255,6 +273,16 @@ export default function AdminRequestDetail() {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--gray-600)' }}>
                                         <Phone size={15} color="var(--primary-500)" /> {job.customerPhone}
                                     </div>
+                                </div>
+                                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+                                    <a
+                                        href={`https://wa.me/91${job.customerPhone?.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${job.customerName}, this is Vansh from NeedLabour regarding your ${job.labourType} request for ${job.quantity} workers in ${job.location}. I'd like to discuss the details.`)}`}
+                                        target="_blank"
+                                        className="btn btn-sm"
+                                        style={{ background: '#25D366', color: 'white', border: 'none', textDecoration: 'none', fontSize: '0.75rem' }}
+                                    >
+                                        <MessageCircle size={14} /> WhatsApp Customer
+                                    </a>
                                 </div>
                             </div>
                         </div>

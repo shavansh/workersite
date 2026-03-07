@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { Menu, X, HardHat, LogOut, LayoutDashboard } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
     const { userData, signOut, loading } = useAuth();
@@ -62,10 +63,14 @@ export default function Navbar() {
                     <Link href="/#how-it-works" className="btn btn-ghost" style={{ textDecoration: 'none' }}>
                         How It Works
                     </Link>
+                    <Link href="/about" className="btn btn-ghost" style={{ textDecoration: 'none' }}>
+                        About
+                    </Link>
                     {!loading && (
                         <>
                             {userData ? (
                                 <>
+                                    <NotificationBell />
                                     <Link href={getDashboardLink()} className="btn btn-ghost" style={{ textDecoration: 'none' }}>
                                         <LayoutDashboard size={16} />
                                         Dashboard
@@ -111,6 +116,9 @@ export default function Navbar() {
                 }}>
                     <Link href="/#how-it-works" className="btn btn-ghost" onClick={() => setMobileOpen(false)} style={{ justifyContent: 'flex-start', textDecoration: 'none' }}>
                         How It Works
+                    </Link>
+                    <Link href="/about" className="btn btn-ghost" onClick={() => setMobileOpen(false)} style={{ justifyContent: 'flex-start', textDecoration: 'none' }}>
+                        About
                     </Link>
                     {userData ? (
                         <>

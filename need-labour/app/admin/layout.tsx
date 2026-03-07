@@ -47,12 +47,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 padding: '0 1rem',
                 zIndex: 45,
             }} className="admin-mobile-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
                     <HardHat size={20} color="var(--primary-400)" />
                     <span style={{ fontWeight: 800, color: 'white', fontSize: '0.9375rem' }}>
                         Need<span style={{ color: 'var(--primary-400)' }}>Labour</span>
                     </span>
-                </div>
+                </Link>
                 <button className="btn btn-icon btn-ghost" onClick={() => setSidebarOpen(!sidebarOpen)} style={{ color: 'white' }}>
                     {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
@@ -70,13 +70,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                <div className="sidebar-brand">
+                <Link href="/" className="sidebar-brand" style={{ textDecoration: 'none' }}>
                     <h2>
                         <HardHat size={20} style={{ display: 'inline', marginRight: '0.375rem' }} />
                         NeedLabour
                     </h2>
                     <p>Admin Dashboard</p>
-                </div>
+                </Link>
 
                 <div className="sidebar-section">Navigation</div>
                 <nav className="sidebar-nav">

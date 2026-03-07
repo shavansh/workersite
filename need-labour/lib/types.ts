@@ -69,6 +69,19 @@ export interface Transaction {
     notes?: string;
 }
 
+export type NotificationType = 'ASSIGNMENT' | 'STATUS_UPDATE' | 'PAYMENT' | 'GENERAL';
+
+export interface Notification {
+    id?: string;
+    userId: string;
+    title: string;
+    message: string;
+    type: NotificationType;
+    read: boolean;
+    link?: string;
+    createdAt: Date;
+}
+
 export const LABOUR_TYPES = [
     'Mason',
     'Carpenter',
